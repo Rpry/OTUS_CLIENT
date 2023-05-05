@@ -6,6 +6,7 @@ import { catchError, map, tap } from 'rxjs/operators';
 
 import { MessageService } from './message.service';
 import {Course} from "../models/course";
+import {CourseFilter} from "../models/courseFilter";
 
 
 @Injectable({ providedIn: 'root' })
@@ -26,10 +27,11 @@ export class CourseService {
 
   /** GET courses from the server */
   getCourses(page: number, itemsPerPage: number): Observable<Course[]> {
-     return this.http.get<Course[]>(`${this.courseUrl}/list/${page}/${itemsPerPage}`, this.httpOptions)
+      let body = { page: page, itemsPerPage: itemsPerPage } as CourseFilter;
+      return this.http.post<Course[]>(`${this.courseUrl}/list`, body,  this.httpOptions)
       .pipe(
         tap(_ => this.log('fetched courses')),
-        catchError(this.handleError<Course[]>(`dgfdgdf`, []))
+        catchError(this.handleError<Course[]>(`getCourses page=${page},itemsPerPage=${itemsPerPage}`, []))
       );
   }
 
@@ -76,7 +78,6 @@ export class CourseService {
    */
   private handleError<T>(operation = 'operation', result?: T) {
     return (error: any): Observable<T> => {
-      debugger;
       // TODO: send the error to remote logging infrastructure
       console.error(error); // log to console instead
 
